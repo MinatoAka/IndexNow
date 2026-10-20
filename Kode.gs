@@ -4,10 +4,10 @@ const SHEET_ID = props.getProperty("SPREADSHEETS_ID");
 const SITE_HOST = "www.aturdompet.my.id";
 const SITE_URL = "https://" + SITE_HOST;
 const SHEET_NAME = "LogIndexNow";
+const endpoints = JSON.parse(props.getProperty("TARGET_POINTS") || "[]");
+const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
 
 function submitToIndexNowWithLog() {
-  const props = PropertiesService.getScriptProperties();
-  const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME) || SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
   if(sheet.getLastRow() == 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
 
@@ -16,7 +16,6 @@ function submitToIndexNowWithLog() {
     const xml = XmlService.parse(sitemap);
     const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
     const urls = xml.getRootElement().getChildren('url', ns);
-
     const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
     const toSubmit = [];
     for (let u of urls) {
@@ -31,11 +30,6 @@ function submitToIndexNowWithLog() {
       sheet.appendRow([new Date(), "SKIP", 0, "Tidak ada URL baru dalam 6 jam", "-"]);
       return;
     }
-
-    const endpoints = [
-      "https://api.indexnow.org/indexnow",
-      "https://yandex.com/indexnow"
-    ];
 
     const payload = JSON.stringify({
       host: SITE_HOST,
@@ -112,6 +106,7 @@ function setupTriggerFinal() {
   ScriptApp.newTrigger("autoDeleteIndexNowLog").timeBased().everyWeeks(1).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
 }
 
+// Submit all post
 function forceSubmitAllToIndexNow() {
   const props = PropertiesService.getScriptProperties();
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME) || SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
@@ -123,9 +118,8 @@ function forceSubmitAllToIndexNow() {
     const xml = XmlService.parse(sitemap);
     const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
     const urls = xml.getRootElement().getChildren('url', ns);
-
     const toSubmit = [];
-    // AMBIL SEMUA URL TANPA FILTER WAKTU & TANPA CEK CACHE
+
     for (let u of urls) {
       const loc = u.getChild('loc', ns).getText();
       toSubmit.push(loc);
@@ -136,8 +130,6 @@ function forceSubmitAllToIndexNow() {
       return;
     }
 
-    // Tembak ke Endpoint
-    const endpoints = ["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow"];
     const payload = JSON.stringify({
       host: SITE_HOST,
       key: INDEXNOW_KEY,
@@ -172,7 +164,6 @@ function forceSubmitAllToIndexNow() {
       }
     }
 
-    // Catat di log
     sheet.appendRow([
       new Date(),
       success ? "SUKSES (FORCE)" : "GAGAL (FORCE)",
@@ -181,7 +172,6 @@ function forceSubmitAllToIndexNow() {
       success ? "HTTP " + finalCode : lastError
     ]);
 
-    // HAPUS CACHE LAMA SETELAH SUKSES
     if (success) {
       props.deleteProperty("idx_cache_final");
       Logger.log("SUKSES! Cache lama dihapus, semua URL (" + toSubmit.length + ") telah dikirim ulang.");
@@ -192,6 +182,7 @@ function forceSubmitAllToIndexNow() {
   }
 }
 
+// Submit all static page
 function submitPagesToIndexNow() {
   const props = PropertiesService.getScriptProperties();
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME) || SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
@@ -199,11 +190,9 @@ function submitPagesToIndexNow() {
   if(sheet.getLastRow() == 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
 
   try {
-    // Ambil URL dari sitemap-pages.xml
     const sitemapUrl = SITE_URL + "/sitemap-pages.xml";
     const sitemap = UrlFetchApp.fetch(sitemapUrl, {muteHttpExceptions: true}).getContentText();
     
-    // Cek jika sitemap tidak ditemukan atau error
     if (sitemap.indexOf("<html") > -1) {
       sheet.appendRow([new Date(), "SKIP", 0, "-", "sitemap-pages.xml tidak ditemukan"]);
       return;
@@ -212,9 +201,8 @@ function submitPagesToIndexNow() {
     const xml = XmlService.parse(sitemap);
     const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
     const urls = xml.getRootElement().getChildren('url', ns);
-
     const toSubmit = [];
-    // Ambil semua URL halaman statis dari sitemap
+    
     for (let u of urls) {
       const loc = u.getChild('loc', ns).getText();
       toSubmit.push(loc);
@@ -225,8 +213,6 @@ function submitPagesToIndexNow() {
       return;
     }
 
-    // Kirim ke IndexNow
-    const endpoints = ["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow"];
     const payload = JSON.stringify({
       host: SITE_HOST,
       key: INDEXNOW_KEY,
