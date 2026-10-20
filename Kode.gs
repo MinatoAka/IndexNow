@@ -32,7 +32,6 @@ function submitToIndexNowWithLog() {
       return;
     }
 
-    // FIX: pakai 3 endpoint biar gak Address unavailable
     const endpoints = [
       "https://api.indexnow.org/indexnow",
       "https://yandex.com/indexnow"
