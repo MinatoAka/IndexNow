@@ -14,14 +14,18 @@ function getSitemapUrls(sitemapUrl, onlyRecent) {
 
     try {
       const response = UrlFetchApp.fetch(currentUrl, { muteHttpExceptions: true });
-      const sitemap = response.getContentText();
+      const statusCode = response.getResponseCode();
 
-      if (!sitemap || response.getResponseCode() >= 400) return;
+      if (statusCode >= 400) return;
+
+      const sitemap = response.getContentText();
+      if (!sitemap) return;
 
       const xml = XmlService.parse(sitemap);
       const root = xml.getRootElement();
       const rootName = (root.getName() || '').toLowerCase();
-      const sitemapNs = root.getNamespace() || XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
+      const defaultNamespace = root.getNamespace();
+      const sitemapNs = defaultNamespace || XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
       const isSitemapIndex = rootName === 'sitemapindex';
       const nodes = isSitemapIndex ? root.getChildren('sitemap', sitemapNs) : root.getChildren('url', sitemapNs);
 
