@@ -86,21 +86,19 @@ const scriptProperties = {
 };
 ```
 
-## Cara Penggunaan
+## 🚀 Cara Penggunaan
 
 ### Submit URL Manual
-Jalankan fungsi yang sudah dibuat untuk mengirim URL ke server IndexNow secara manual.
+Jika ingin menembak URL secara manual tanpa menunggu trigger, jalankan salah satu fungsi berikut di editor GAS:
+- `submitToIndexNowWithLog()` : Mengecek sitemap dan hanya mengirim URL baru (dalam 6 jam terakhir).
+- `forceSubmitAllToIndexNow()` : **Maksa** kirim semua URL artikel dari `sitemap.xml` (mengabaikan cache).
+- `submitPagesToIndexNow()` : Mengirim semua halaman statis dari `sitemap-pages.xml`.
 
 ### Submit URL Otomatis
-Atur trigger di Google Apps Script agar skrip berjalan secara berkala sesuai kebutuhan Anda.
+Jalankan fungsi `setupTriggerFinal()` satu kali di editor GAS untuk mengaktifkan trigger otomatis setiap 6 jam.
 
 ### Catat Log ke Spreadsheet
-Setiap request yang dikirim akan dicatat ke spreadsheet, termasuk informasi seperti:
-- Waktu pengiriman
-- URL yang dikirim
-- Status HTTP
-- Response dari API
-- Pesan atau alasan dari status
+Setiap request akan dicatat ke spreadsheet, termasuk Waktu, URL, Status HTTP, dan Response dari API.
 
 ## Kode Status Respons IndexNow
 
