@@ -54,6 +54,7 @@ function submitToIndexNowWithLog() {
 // ==========================================
 // FUNGSI MANUAL (Force Submit & Halaman Statis)
 // ==========================================
+
 function forceSubmitAllToIndexNow() {
   return withSubmitLock(function () {
     try {
