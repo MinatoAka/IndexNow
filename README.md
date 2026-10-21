@@ -1,7 +1,5 @@
 # IndexNow
 
-Auto submit URL ke API IndexNow menggunakan Google Apps Script (GAS), dengan pencatatan log ke Google Sheets.
-
 ## Deskripsi
 
 Proyek ini dibuat untuk membantu Anda mengirim URL ke API IndexNow secara manual maupun otomatis, serta menyimpan hasil respons ke spreadsheet untuk keperluan monitoring, debugging, dan audit.
