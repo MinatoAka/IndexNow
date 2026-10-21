@@ -9,22 +9,21 @@ Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Scri
 
 Proyek ini dibuat untuk membantu Anda mengirim URL ke API IndexNow secara manual maupun otomatis, serta menyimpan hasil respons ke spreadsheet untuk keperluan monitoring, debugging, dan audit.
 
-Fitur utama:
-- Submit URL secara manual
-- Submit URL secara otomatis
-- Mencatat respons API ke Google Sheets
-- Mendukung beberapa endpoint target IndexNow
+## ✨ Fitur Utama
 
-## Alur Kerja
+- ⚡ **Submit Otomatis:** Berjalan otomatis via *Time-Driven Trigger* (misal: setiap 6 jam) untuk mengecek `sitemap.xml`.
+- 🛠️ **Submit Manual:** Fungsi khusus untuk mem- *force* submit semua URL (termasuk halaman statis) kapan saja.
+- 📦 **Batch Processing:** Memotong daftar URL menjadi beberapa *batch* (maksimal 500 per *request*) agar tidak kena limit API.
+- 🛡️ **Anti-Bentrok (LockService):** Mencegah *race condition* antara trigger otomatis dan submit manual.
+- 📊 **Audit Log:** Semua respons (HTTP 200/202/4xx) dicatat rapi di Google Sheets.
+- 🧹 **Auto-Cleanup:** Menghapus log yang berumur lebih dari 7 hari secara otomatis.
+
+## ⚙️ Alur Kerja
 
 ```text
-URL / Data -> Google Apps Script -> IndexNow API
-                                    |
-                                    v
-                             Response Code
-                                    |
-                                    v
-                            Google Sheets Log
+[ Sitemap.xml ] ➡️ [ GAS: Sitemap Parser ] ➡️ [ GAS: API Kurir ]
+                                                    ⬇️
+[ Google Sheets Log ] ⬅️ [ Response Code ] ⬅️ [ IndexNow API ]
 ```
 
 ## Persyaratan
