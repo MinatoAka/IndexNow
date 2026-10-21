@@ -33,11 +33,6 @@ function getCacheSet() {
   }
 }
 
-function appendLogRow(status, count, urls, note) {
-  const sheet = ensureSheet();
-  sheet.appendRow([new Date(), status, count, urls, note]);
-}
-
 function autoDeleteIndexNowLog() {
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
   if (!sheet) return;
