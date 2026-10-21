@@ -2,9 +2,12 @@
 // 3. FUNGSI UTAMA (Otomatis via Trigger)
 // ==========================================
 function ensureSheet() {
-  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME) || SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.getActiveSheet();
+
   if (!sheet) throw new Error("Sheet '" + SHEET_NAME + "' tidak ditemukan.");
-  if (sheet.getLastRow() == 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
+  if (sheet.getLastRow() === 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
+
   return sheet;
 }
 
