@@ -26,6 +26,16 @@ Proyek ini dibuat untuk membantu Anda mengirim URL ke API IndexNow secara manual
 [ Google Sheets Log ] ⬅️ [ Response Code ] ⬅️ [ IndexNow API ]
 ```
 
+## 📂 Struktur Project
+
+Project ini dibangun dengan prinsip *Modular Architecture* agar mudah di-*maintain*:
+
+- `Config.gs` : Pusat konfigurasi, validasi, dan inisialisasi *Script Properties*.
+- `Main.gs`   : Fungsi eksekutor utama yang dipanggil oleh *trigger* atau manual.
+- `Api.gs`    : Fungsi kurir yang menangani *request* HTTP, *retry logic*, dan *chunking* URL.
+- `Sitemap.gs`: Fungsi intelijen untuk mengambil dan mem- *parsing* `sitemap.xml` / `sitemap-pages.xml`.
+- `Utils.gs`  : Fungsi bantu (*LockService*, pembersihan log, dan manajemen cache).
+
 ## Persyaratan
 
 Sebelum menggunakan project ini, pastikan Anda sudah memiliki:
