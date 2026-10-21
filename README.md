@@ -3,11 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?logo=google&logoColor=white)](#)
 
-Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Script (GAS), lengkap dengan pencatatan log ke Google Sheets untuk keperluan monitoring dan audit.
-
-## Deskripsi
-
-Proyek ini dibuat untuk membantu Anda mengirim URL ke API IndexNow secara manual maupun otomatis, serta menyimpan hasil respons ke spreadsheet untuk keperluan monitoring, debugging, dan audit.
+Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Script (GAS), lengkap dengan pencatatan log ke Google Sheets untuk keperluan monitoring, debugging, dan audit.
 
 ## ✨ Fitur Utama
 
