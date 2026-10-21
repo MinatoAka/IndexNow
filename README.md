@@ -1,5 +1,5 @@
 # IndexNow
-Manual & Auto submit url IndexNow Api menggunakan Google Apps Script (GAS)
+Manual & Auto submit url IndexNow Api menggunakan Google Apps Script (GAS), dan catat log di Spreadsheets.
 
 ## Script property
 - IndexNow_KEY : 8f947d2fcacb4e328b38xxxx
