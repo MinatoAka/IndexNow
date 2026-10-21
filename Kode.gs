@@ -37,7 +37,7 @@ function kirimKeIndexNow(urlList) {
         return { success: true, code: code, error: "" };
       }
     } catch (e) {
-      continue; // Coba endpoint selanjutnya jika gagal
+      continue;
     }
   }
   return { success: false, code: 0, error: "Semua endpoint gagal" };
@@ -121,7 +121,7 @@ function forceSubmitAllToIndexNow() {
     ]);
 
     if (result.success) {
-      props.deleteProperty("idx_cache_final"); // Hapus cache jika force sukses
+      props.deleteProperty("idx_cache_final");
       Logger.log("SUKSES! Cache dihapus, " + toSubmit.length + " URL terkirim ulang.");
     }
 
