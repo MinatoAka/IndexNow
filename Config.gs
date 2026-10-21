@@ -1,5 +1,5 @@
 // ==========================================
-// 1. KONFIGURASI
+// KONFIGURASI
 // ==========================================
 const props = PropertiesService.getScriptProperties();
 const INDEXNOW_KEY = (props.getProperty("IndexNow_KEY") || "").trim();
