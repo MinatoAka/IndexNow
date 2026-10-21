@@ -109,14 +109,23 @@ function submitPagesToIndexNow() {
       }
 
       const xml = XmlService.parse(sitemap);
-      const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
-      const urlNodes = xml.getRootElement().getChildren("url", ns);
+      const root = xml.getRootElement();
+      const rootName = (root.getName() || '').toLowerCase();
+      const defaultNamespace = root.getNamespace();
+      const sitemapNs = defaultNamespace || XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
+      const urlNodes = rootName === 'sitemapindex'
+        ? root.getChildren('sitemap', sitemapNs)
+        : root.getChildren('url', sitemapNs);
+
       const toSubmit = [];
 
       for (let i = 0; i < urlNodes.length; i++) {
-        const locNode = urlNodes[i].getChild("loc", ns);
-        if (locNode && locNode.getText()) {
-          toSubmit.push(locNode.getText());
+        const currentNode = urlNodes[i];
+        const locNode = currentNode.getChild('loc', sitemapNs);
+        const loc = locNode ? String(locNode.getText()).trim() : '';
+
+        if (loc) {
+          toSubmit.push(loc);
         }
       }
 
