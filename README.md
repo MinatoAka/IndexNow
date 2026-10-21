@@ -51,7 +51,7 @@ Buka Google Apps Script, lalu masuk ke:
 
 Tambahkan properti berikut:
 
-- `INDEXNOW_KEY`: `YOUR_INDEXNOW_KEY`
+- `IndexNow_KEY`: `YOUR_INDEXNOW_KEY`
 - `SPREADSHEETS_ID`: `YOUR_SPREADSHEET_ID`
 - `TARGET_POINTS`: `["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow"]`
 - `idx_cache_final`: `[]`
@@ -64,7 +64,7 @@ Catatan penting:
 
 ```javascript
 const scriptProperties = {
-  INDEXNOW_KEY: "YOUR_INDEXNOW_KEY",
+  IndexNow_KEY: "YOUR_INDEXNOW_KEY",
   SPREADSHEETS_ID: "YOUR_SPREADSHEET_ID",
   TARGET_POINTS: [
     "https://api.indexnow.org/indexnow",
