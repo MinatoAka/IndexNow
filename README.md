@@ -1,7 +1,12 @@
 # 🚀 IndexNow Auto-Submit (Google Apps Script)
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?logo=google&logoColor=white)](#)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
+[![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?logo=google&logoColor=white&style=for-the-badge)](#)
+[![JavaScript](https://img.shields.io/badge/JavaScript-100%25-F7DF1E?logo=javascript&logoColor=black&style=for-the-badge)](#)
+[![Repo stars](https://img.shields.io/github/stars/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/stargazers)
+[![Forks](https://img.shields.io/github/forks/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/network/members)
+[![Issues](https://img.shields.io/github/issues/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/commits)
 
 Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Script (GAS), lengkap dengan pencatatan log ke Google Sheets untuk keperluan monitoring, debugging, dan audit.
 
