@@ -1,5 +1,5 @@
 // ==========================================
-// 2. FUNGSI KURIR UTAMA
+// FUNGSI KURIR UTAMA
 // ==========================================
 
 function normalizeUrlList(urlList) {
