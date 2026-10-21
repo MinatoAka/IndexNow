@@ -34,37 +34,58 @@ function getCacheSet() {
 }
 
 function getSitemapUrls(sitemapUrl, onlyRecent) {
-  const response = UrlFetchApp.fetch(sitemapUrl, { muteHttpExceptions: true });
-  const sitemap = response.getContentText();
+  const seenUrls = {};
+  const seenSitemaps = {};
+  const urls = [];
+  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
 
-  if (!sitemap || response.getResponseCode() >= 400) {
-    return { error: "Gagal mengambil sitemap.xml (HTTP " + response.getResponseCode() + ")", urls: [] };
+  function fetchAndParse(currentUrl) {
+    if (!currentUrl || seenSitemaps[currentUrl]) return;
+    seenSitemaps[currentUrl] = true;
+
+    try {
+      const response = UrlFetchApp.fetch(currentUrl, { muteHttpExceptions: true });
+      const sitemap = response.getContentText();
+
+      if (!sitemap || response.getResponseCode() >= 400) return;
+
+      const xml = XmlService.parse(sitemap);
+      const root = xml.getRootElement();
+      const rootName = (root.getName() || "").toLowerCase();
+      const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
+      const isSitemapIndex = rootName === "sitemapindex";
+      const nodes = isSitemapIndex ? root.getChildren("sitemap", ns) : root.getChildren("url", ns);
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const locNode = node.getChild("loc", ns);
+        const loc = locNode ? locNode.getText() : "";
+
+        if (!loc) continue;
+
+        if (isSitemapIndex) {
+          fetchAndParse(loc);
+          continue;
+        }
+
+        const lastmodNode = node.getChild("lastmod", ns);
+        const lastmodText = lastmodNode ? lastmodNode.getText() : "";
+        const lastmod = lastmodText ? new Date(lastmodText) : null;
+
+        if (onlyRecent && lastmod && !isNaN(lastmod.getTime()) && lastmod < sixHoursAgo) continue;
+
+        if (!seenUrls[loc]) {
+          seenUrls[loc] = true;
+          urls.push(loc);
+        }
+      }
+    } catch (e) {
+      // Abaikan sitemap yang gagal diparse; tugas berikutnya tetap berjalan.
+    }
   }
 
   try {
-    const xml = XmlService.parse(sitemap);
-    const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
-    const urlNodes = xml.getRootElement().getChildren("url", ns);
-    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
-    const urls = [];
-
-    for (let i = 0; i < urlNodes.length; i++) {
-      const node = urlNodes[i];
-      const locNode = node.getChild("loc", ns);
-      const lastmodNode = node.getChild("lastmod", ns);
-      const loc = locNode ? locNode.getText() : "";
-
-      if (!loc) continue;
-
-      if (onlyRecent) {
-        const lastmodText = lastmodNode ? lastmodNode.getText() : "";
-        const lastmod = lastmodText ? new Date(lastmodText) : null;
-        if (lastmod && !isNaN(lastmod.getTime()) && lastmod < sixHoursAgo) continue;
-      }
-
-      urls.push(loc);
-    }
-
+    fetchAndParse(sitemapUrl);
     return { error: "", urls: urls };
   } catch (e) {
     return { error: e.toString(), urls: [] };
@@ -214,3 +235,4 @@ function submitPagesToIndexNow() {
     }
   });
 }
+

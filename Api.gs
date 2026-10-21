@@ -33,6 +33,9 @@ function submitSingleBatch(urlList) {
     urlList: urlList
   });
 
+  let lastCode = 0;
+  let lastBody = "";
+
   for (let ep of ENDPOINTS) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
@@ -45,19 +48,26 @@ function submitSingleBatch(urlList) {
           validateHttpsCertificates: true
         });
 
-        const code = res.getResponseCode();
-        if (code == 200 || code == 202) {
-          return { success: true, code: code, error: "" };
+        lastCode = res.getResponseCode();
+        lastBody = res.getContentText() || "";
+
+        if (lastCode == 200 || lastCode == 202) {
+          return { success: true, code: lastCode, error: "" };
         }
 
         if (attempt < 3) Utilities.sleep(1000 * attempt);
       } catch (e) {
+        lastBody = e.toString();
         if (attempt < 3) Utilities.sleep(1000 * attempt);
       }
     }
   }
 
-  return { success: false, code: 0, error: "Semua endpoint gagal" };
+  return {
+    success: false,
+    code: lastCode,
+    error: "Semua endpoint gagal. Terakhir: HTTP " + lastCode + " - " + lastBody
+  };
 }
 
 function kirimKeIndexNow(urlList) {
@@ -85,3 +95,4 @@ function kirimKeIndexNow(urlList) {
     error: lastError || "Semua endpoint gagal"
   };
 }
+
