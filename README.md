@@ -13,6 +13,7 @@ Manual & Auto submit url IndexNow Api
 ### Respons
 HTTP Code - Response & Reasons
 - 200 : Ok - URL submitted successfully
+- 202 : Accepted - URL received. IndexNow key validation pending.
 - 400 : Bad request - Invalid format
 - 403 : Forbidden - In case of key not valid
 - 422 : Unprocessable Entity - URLs don’t belong to the host or the key is not matching the schema in the protocol
