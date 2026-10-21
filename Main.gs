@@ -1,101 +1,6 @@
 // ==========================================
-// 3. FUNGSI UTAMA (Otomatis via Trigger)
+// FUNGSI UTAMA (Otomatis via Trigger)
 // ==========================================
-
-function ensureSheet() {
-  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
-  const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.getActiveSheet();
-
-  if (!sheet) throw new Error("Sheet '" + SHEET_NAME + "' tidak ditemukan.");
-  if (sheet.getLastRow() === 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
-
-  return sheet;
-}
-
-function withSubmitLock(fn) {
-  const lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(30000);
-    return fn();
-  } finally {
-    try {
-      lock.releaseLock();
-    } catch (e) {}
-  }
-}
-
-function getCacheSet() {
-  try {
-    const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
-    return new Set(Array.isArray(cache) ? cache.filter(Boolean) : []);
-  } catch (e) {
-    return new Set();
-  }
-}
-
-function getSitemapUrls(sitemapUrl, onlyRecent) {
-  const seenUrls = {};
-  const seenSitemaps = {};
-  const urls = [];
-  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
-
-  function fetchAndParse(currentUrl) {
-    if (!currentUrl || seenSitemaps[currentUrl]) return;
-    seenSitemaps[currentUrl] = true;
-
-    try {
-      const response = UrlFetchApp.fetch(currentUrl, { muteHttpExceptions: true });
-      const sitemap = response.getContentText();
-
-      if (!sitemap || response.getResponseCode() >= 400) return;
-
-      const xml = XmlService.parse(sitemap);
-      const root = xml.getRootElement();
-      const rootName = (root.getName() || "").toLowerCase();
-      const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
-      const isSitemapIndex = rootName === "sitemapindex";
-      const nodes = isSitemapIndex ? root.getChildren("sitemap", ns) : root.getChildren("url", ns);
-
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        const locNode = node.getChild("loc", ns);
-        const loc = locNode ? locNode.getText() : "";
-
-        if (!loc) continue;
-
-        if (isSitemapIndex) {
-          fetchAndParse(loc);
-          continue;
-        }
-
-        const lastmodNode = node.getChild("lastmod", ns);
-        const lastmodText = lastmodNode ? lastmodNode.getText() : "";
-        const lastmod = lastmodText ? new Date(lastmodText) : null;
-
-        if (onlyRecent && lastmod && !isNaN(lastmod.getTime()) && lastmod < sixHoursAgo) continue;
-
-        if (!seenUrls[loc]) {
-          seenUrls[loc] = true;
-          urls.push(loc);
-        }
-      }
-    } catch (e) {
-      // Abaikan sitemap yang gagal diparse; tugas berikutnya tetap berjalan.
-    }
-  }
-
-  try {
-    fetchAndParse(sitemapUrl);
-    return { error: "", urls: urls };
-  } catch (e) {
-    return { error: e.toString(), urls: [] };
-  }
-}
-
-function appendLogRow(status, count, urls, note) {
-  const sheet = ensureSheet();
-  sheet.appendRow([new Date(), status, count, urls, note]);
-}
 
 function submitToIndexNowWithLog() {
   return withSubmitLock(function () {
@@ -235,4 +140,3 @@ function submitPagesToIndexNow() {
     }
   });
 }
-
