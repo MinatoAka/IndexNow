@@ -1,3 +1,7 @@
+// ==========================================
+// FUNGSI SITEMAP (Kolektor URL)
+// ==========================================
+
 function getSitemapUrls(sitemapUrl, onlyRecent) {
   const seenUrls = {};
   const seenSitemaps = {};
