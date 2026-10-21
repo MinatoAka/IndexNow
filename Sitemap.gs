@@ -9,7 +9,7 @@ function getSitemapUrls(sitemapUrl, onlyRecent) {
   const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
 
 function fetchAndParse(currentUrl) {
-    if (!currentUrl || seenSitemaps[currentUrl]) return;
+  if (!currentUrl || seenSitemaps[currentUrl]) return;
     seenSitemaps[currentUrl] = true;
 
     try {
