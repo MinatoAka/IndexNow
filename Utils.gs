@@ -1,6 +1,43 @@
 // ==========================================
-// 5. UTILITY
+// UTILITY
 // ==========================================
+
+function ensureSheet() {
+  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.getActiveSheet();
+
+  if (!sheet) throw new Error("Sheet '" + SHEET_NAME + "' tidak ditemukan.");
+  if (sheet.getLastRow() === 0) sheet.appendRow(["Waktu", "Status", "Jumlah", "URL", "Catatan"]);
+
+  return sheet;
+}
+
+function withSubmitLock(fn) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+    return fn();
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
+  }
+}
+
+function getCacheSet() {
+  try {
+    const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
+    return new Set(Array.isArray(cache) ? cache.filter(Boolean) : []);
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function appendLogRow(status, count, urls, note) {
+  const sheet = ensureSheet();
+  sheet.appendRow([new Date(), status, count, urls, note]);
+}
+
 function autoDeleteIndexNowLog() {
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
   if (!sheet) return;
