@@ -1,6 +1,7 @@
 // ==========================================
 // 3. FUNGSI UTAMA (Otomatis via Trigger)
 // ==========================================
+
 function ensureSheet() {
   const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
   const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.getActiveSheet();
@@ -23,34 +24,75 @@ function withSubmitLock(fn) {
   }
 }
 
+function getCacheSet() {
+  try {
+    const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
+    return new Set(Array.isArray(cache) ? cache.filter(Boolean) : []);
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function getSitemapUrls(sitemapUrl, onlyRecent) {
+  const response = UrlFetchApp.fetch(sitemapUrl, { muteHttpExceptions: true });
+  const sitemap = response.getContentText();
+
+  if (!sitemap || response.getResponseCode() >= 400) {
+    return { error: "Gagal mengambil sitemap.xml (HTTP " + response.getResponseCode() + ")", urls: [] };
+  }
+
+  try {
+    const xml = XmlService.parse(sitemap);
+    const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
+    const urlNodes = xml.getRootElement().getChildren("url", ns);
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const urls = [];
+
+    for (let i = 0; i < urlNodes.length; i++) {
+      const node = urlNodes[i];
+      const locNode = node.getChild("loc", ns);
+      const lastmodNode = node.getChild("lastmod", ns);
+      const loc = locNode ? locNode.getText() : "";
+
+      if (!loc) continue;
+
+      if (onlyRecent) {
+        const lastmodText = lastmodNode ? lastmodNode.getText() : "";
+        const lastmod = lastmodText ? new Date(lastmodText) : null;
+        if (lastmod && !isNaN(lastmod.getTime()) && lastmod < sixHoursAgo) continue;
+      }
+
+      urls.push(loc);
+    }
+
+    return { error: "", urls: urls };
+  } catch (e) {
+    return { error: e.toString(), urls: [] };
+  }
+}
+
+function appendLogRow(status, count, urls, note) {
+  const sheet = ensureSheet();
+  sheet.appendRow([new Date(), status, count, urls, note]);
+}
+
 function submitToIndexNowWithLog() {
-  return withSubmitLock(function() {
+  return withSubmitLock(function () {
     try {
       validateConfig();
-      const cache = JSON.parse(props.getProperty("idx_cache_final") || "[]");
+      const cache = getCacheSet();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
-      const response = UrlFetchApp.fetch(sitemapUrl, { muteHttpExceptions: true });
-      const sitemap = response.getContentText();
+      const sitemapResult = getSitemapUrls(sitemapUrl, true);
 
-      if (!sitemap || response.getResponseCode() >= 400) {
-        sheet.appendRow([new Date(), "ERROR", 0, "-", "Gagal mengambil sitemap.xml (HTTP " + response.getResponseCode() + ")"]);
+      if (sitemapResult.error) {
+        sheet.appendRow([new Date(), "ERROR", 0, "-", sitemapResult.error]);
         return;
       }
 
-      const xml = XmlService.parse(sitemap);
-      const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
-      const urls = xml.getRootElement().getChildren('url', ns);
-      const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
-      const toSubmit = [];
-
-      for (let u of urls) {
-        const loc = u.getChild('loc', ns).getText();
-        const lastmod = new Date(u.getChild('lastmod', ns).getText());
-        if (lastmod >= sixHoursAgo && !cache.includes(loc)) {
-          toSubmit.push(loc);
-        }
-      }
+      const toSubmit = sitemapResult.urls.filter(function (url) {
+        return !cache.has(url);
+      });
 
       if (toSubmit.length === 0) {
         sheet.appendRow([new Date(), "SKIP", 0, "Tidak ada URL baru dalam 6 jam", "-"]);
@@ -67,7 +109,10 @@ function submitToIndexNowWithLog() {
       ]);
 
       if (result.success) {
-        props.setProperty("idx_cache_final", JSON.stringify([...cache, ...toSubmit].slice(-500)));
+        for (let i = 0; i < toSubmit.length; i++) {
+          cache.add(toSubmit[i]);
+        }
+        props.setProperty("idx_cache_final", JSON.stringify(Array.from(cache).slice(-500)));
       }
     } catch (e) {
       try {
@@ -84,25 +129,19 @@ function submitToIndexNowWithLog() {
 // 4. FUNGSI MANUAL (Force Submit & Halaman Statis)
 // ==========================================
 function forceSubmitAllToIndexNow() {
-  return withSubmitLock(function() {
+  return withSubmitLock(function () {
     try {
       validateConfig();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
-      const response = UrlFetchApp.fetch(sitemapUrl, { muteHttpExceptions: true });
-      const sitemap = response.getContentText();
+      const sitemapResult = getSitemapUrls(sitemapUrl, false);
 
-      if (!sitemap || response.getResponseCode() >= 400) {
-        sheet.appendRow([new Date(), "ERROR", 0, "-", "Gagal mengambil sitemap.xml (HTTP " + response.getResponseCode() + ")"]);
+      if (sitemapResult.error) {
+        sheet.appendRow([new Date(), "ERROR", 0, "-", sitemapResult.error]);
         return;
       }
 
-      const xml = XmlService.parse(sitemap);
-      const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
-      const urls = xml.getRootElement().getChildren('url', ns);
-      const toSubmit = [];
-
-      for (let u of urls) toSubmit.push(u.getChild('loc', ns).getText());
+      const toSubmit = sitemapResult.urls;
       if (toSubmit.length === 0) return;
 
       const result = kirimKeIndexNow(toSubmit);
@@ -130,7 +169,7 @@ function forceSubmitAllToIndexNow() {
 }
 
 function submitPagesToIndexNow() {
-  return withSubmitLock(function() {
+  return withSubmitLock(function () {
     try {
       validateConfig();
       const sheet = ensureSheet();
@@ -144,11 +183,17 @@ function submitPagesToIndexNow() {
       }
 
       const xml = XmlService.parse(sitemap);
-      const ns = XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
-      const urls = xml.getRootElement().getChildren('url', ns);
+      const ns = XmlService.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
+      const urlNodes = xml.getRootElement().getChildren("url", ns);
       const toSubmit = [];
 
-      for (let u of urls) toSubmit.push(u.getChild('loc', ns).getText());
+      for (let i = 0; i < urlNodes.length; i++) {
+        const locNode = urlNodes[i].getChild("loc", ns);
+        if (locNode && locNode.getText()) {
+          toSubmit.push(locNode.getText());
+        }
+      }
+
       if (toSubmit.length === 0) return;
 
       const result = kirimKeIndexNow(toSubmit);

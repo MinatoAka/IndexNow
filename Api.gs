@@ -1,9 +1,31 @@
 // ==========================================
 // 2. FUNGSI KURIR (Dipakai oleh semua fungsi di bawah)
 // ==========================================
-function kirimKeIndexNow(urlList) {
-  if (!urlList || urlList.length === 0) return { success: false, code: 0, error: "List kosong" };
 
+function normalizeUrlList(urlList) {
+  if (!Array.isArray(urlList) || urlList.length === 0) return [];
+
+  const seen = {};
+  return urlList
+    .map(function (item) {
+      return typeof item === "string" ? item.trim() : "";
+    })
+    .filter(function (item) {
+      if (!item || seen[item]) return false;
+      seen[item] = true;
+      return true;
+    });
+}
+
+function chunkArray(items, size) {
+  const chunks = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function submitSingleBatch(urlList) {
   const payload = JSON.stringify({
     host: SITE_HOST,
     key: INDEXNOW_KEY,
@@ -22,10 +44,12 @@ function kirimKeIndexNow(urlList) {
           followRedirects: true,
           validateHttpsCertificates: true
         });
+
         const code = res.getResponseCode();
         if (code == 200 || code == 202) {
           return { success: true, code: code, error: "" };
         }
+
         if (attempt < 3) Utilities.sleep(1000 * attempt);
       } catch (e) {
         if (attempt < 3) Utilities.sleep(1000 * attempt);
@@ -34,4 +58,30 @@ function kirimKeIndexNow(urlList) {
   }
 
   return { success: false, code: 0, error: "Semua endpoint gagal" };
+}
+
+function kirimKeIndexNow(urlList) {
+  const urls = normalizeUrlList(urlList);
+  if (urls.length === 0) return { success: false, code: 0, error: "List kosong" };
+
+  const batches = chunkArray(urls, 500);
+  let allSucceeded = true;
+  let lastCode = 0;
+  let lastError = "";
+
+  for (let i = 0; i < batches.length; i++) {
+    const result = submitSingleBatch(batches[i]);
+    if (result.success) {
+      lastCode = result.code;
+    } else {
+      allSucceeded = false;
+      lastError = result.error;
+    }
+  }
+
+  return {
+    success: allSucceeded,
+    code: lastCode,
+    error: lastError || "Semua endpoint gagal"
+  };
 }
