@@ -18,6 +18,3 @@ HTTP Code - Response & Reasons
 - 403 : Forbidden - In case of key not valid
 - 422 : Unprocessable Entity - URLs don’t belong to the host or the key is not matching the schema in the protocol
 - 429 : Too Many Requests - Too Many Requests (potential Spam)
-
-### Powered by
-https://www.aturdompet.my.id/
