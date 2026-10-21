@@ -1,5 +1,5 @@
 // ==========================================
-// 2. FUNGSI KURIR (Dipakai oleh semua fungsi di bawah)
+// 2. FUNGSI KURIR UTAMA
 // ==========================================
 
 function normalizeUrlList(urlList) {
