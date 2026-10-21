@@ -1,20 +1,121 @@
 # IndexNow
-Manual & Auto submit url IndexNow Api menggunakan Google Apps Script (GAS), dan catat log di Spreadsheets.
 
-## Script property
-- IndexNow_KEY : 8f947d2fcacb4e328b38xxxx
-- SPREADSHEETS_ID : 1LRuYLDPzNWpQP4LPZqdW6lHwdeVKxxxxxxx
-- TARGET_POINTS : ["https://api.indexnow.org/indexnow","https://yandex.com/indexnow"]
-- idx_cache_final : []
+Auto submit URL ke API IndexNow menggunakan Google Apps Script (GAS), dengan pencatatan log ke Google Sheets.
 
-### Generate API Key
-- https://www.bing.com/indexnow/getstarted
+## Deskripsi
 
-### Respons
-HTTP Code - Response & Reasons
-- 200 : Ok - URL submitted successfully
-- 202 : Accepted - URL received. IndexNow key validation pending.
-- 400 : Bad request - Invalid format
-- 403 : Forbidden - In case of key not valid
-- 422 : Unprocessable Entity - URLs don’t belong to the host or the key is not matching the schema in the protocol
-- 429 : Too Many Requests - Too Many Requests (potential Spam)
+Proyek ini dibuat untuk membantu Anda mengirim URL ke API IndexNow secara manual maupun otomatis, serta menyimpan hasil respons ke spreadsheet untuk keperluan monitoring, debugging, dan audit.
+
+Fitur utama:
+- Submit URL secara manual
+- Submit URL secara otomatis
+- Mencatat respons API ke Google Sheets
+- Mendukung beberapa endpoint target IndexNow
+
+## Alur Kerja
+
+```text
+URL / Data -> Google Apps Script -> IndexNow API
+                                    |
+                                    v
+                             Response Code
+                                    |
+                                    v
+                            Google Sheets Log
+```
+
+## Persyaratan
+
+Sebelum menggunakan project ini, pastikan Anda sudah memiliki:
+- Akun Google
+- Google Apps Script
+- Google Sheets
+- API Key IndexNow dari Bing
+- Akses ke spreadsheet untuk mencatat log
+
+## Setup
+
+### 1. Buat API Key IndexNow
+Dapatkan API key Anda di:
+https://www.bing.com/indexnow/getstarted
+
+### 2. Siapkan spreadsheet
+Buat spreadsheet baru atau gunakan spreadsheet yang sudah ada, lalu catat:
+- Spreadsheet ID
+- Nama sheet yang digunakan untuk menyimpan log
+
+### 3. Atur Script Properties
+Buka Google Apps Script, lalu masuk ke:
+- Project Settings
+- Script properties
+
+Tambahkan properti berikut:
+
+- `INDEXNOW_KEY`: `YOUR_INDEXNOW_KEY`
+- `SPREADSHEETS_ID`: `YOUR_SPREADSHEET_ID`
+- `TARGET_POINTS`: `["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow"]`
+- `idx_cache_final`: `[]`
+
+Catatan penting:
+- Jangan pernah menyimpan API key asli di repository publik.
+- Gunakan placeholder atau variable environment untuk dokumentasi.
+
+## Struktur Properti
+
+```javascript
+const scriptProperties = {
+  INDEXNOW_KEY: "YOUR_INDEXNOW_KEY",
+  SPREADSHEETS_ID: "YOUR_SPREADSHEET_ID",
+  TARGET_POINTS: [
+    "https://api.indexnow.org/indexnow",
+    "https://yandex.com/indexnow"
+  ],
+  idx_cache_final: []
+};
+```
+
+## Cara Penggunaan
+
+### Submit URL Manual
+Jalankan fungsi yang sudah dibuat untuk mengirim URL ke server IndexNow secara manual.
+
+### Submit URL Otomatis
+Atur trigger di Google Apps Script agar skrip berjalan secara berkala sesuai kebutuhan Anda.
+
+### Catat Log ke Spreadsheet
+Setiap request yang dikirim akan dicatat ke spreadsheet, termasuk informasi seperti:
+- Waktu pengiriman
+- URL yang dikirim
+- Status HTTP
+- Response dari API
+- Pesan atau alasan dari status
+
+## Kode Status Respons IndexNow
+
+| HTTP Code | Status | Keterangan |
+|-----------|--------|-----------|
+| 200 | OK | URL submitted successfully |
+| 202 | Accepted | URL received. IndexNow key validation pending |
+| 400 | Bad request | Invalid format |
+| 403 | Forbidden | Key is not valid |
+| 422 | Unprocessable Entity | URL does not belong to the host or key mismatch |
+| 429 | Too Many Requests | Potential spam |
+
+## Catatan Penting
+
+- Pastikan URL yang dikirim sesuai dengan host yang valid.
+- API key harus sesuai dengan domain yang digunakan.
+- Hindari pengiriman URL secara berulang tanpa kontrol, karena dapat memicu rate limiting.
+- Jangan membagikan Spreadsheet ID atau API key di repository publik.
+
+## Lisensi
+
+Proyek ini dibuat untuk kebutuhan penggunaan pribadi dan internal. Jika Anda ingin membagikan project ini secara publik, sesuaikan lisensi sesuai kebutuhan.
+
+## Kontribusi
+
+Kontribusi dan saran sangat diterima. Jika Anda ingin memperbaiki atau menambahkan fitur baru, silakan buka pull request atau buat issue di repository ini.
+
+## Kontak
+
+Untuk pertanyaan atau kolaborasi, silakan hubungi maintainer melalui profil GitHub atau kanal komunikasi yang tersedia.
