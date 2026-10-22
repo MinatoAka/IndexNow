@@ -2,10 +2,6 @@
 // TRIGGER UTILITIES
 // ==========================================
 
-function getManagedTriggerNames() {
-  return ["submitToIndexNowWithLog", "autoDeleteIndexNowLog"];
-}
-
 function getTriggersByFunctionName(functionName) {
   return ScriptApp.getProjectTriggers().filter(function (trigger) {
     return trigger.getHandlerFunction() === functionName;
@@ -21,10 +17,12 @@ function deleteTriggersByFunctionName(functionName) {
 function ensureClockTrigger(functionName, buildTrigger, isValidTrigger) {
   const triggers = getTriggersByFunctionName(functionName);
 
+  // Jika sudah ada trigger yang valid, biarkan saja (jangan buat baru)
   if (triggers.some(isValidTrigger)) {
     return;
   }
 
+  // Jika tidak ada yang valid, hapus semua trigger lama dan buat baru
   deleteTriggersByFunctionName(functionName);
   buildTrigger();
 }
@@ -40,10 +38,8 @@ function setupTriggerFinal() {
           .create();
       },
       isValidTrigger: function (trigger) {
-        return (
-          trigger.getHandlerFunction() === "submitToIndexNowWithLog" &&
-          trigger.getEventType() === ScriptApp.EventType.CLOCK
-        );
+        // Cukup cek tipe event karena nama fungsi sudah difilter sebelumnya
+        return trigger.getEventType() === ScriptApp.EventType.CLOCK;
       }
     },
     {
@@ -57,10 +53,7 @@ function setupTriggerFinal() {
           .create();
       },
       isValidTrigger: function (trigger) {
-        return (
-          trigger.getHandlerFunction() === "autoDeleteIndexNowLog" &&
-          trigger.getEventType() === ScriptApp.EventType.CLOCK
-        );
+        return trigger.getEventType() === ScriptApp.EventType.CLOCK;
       }
     }
   ];
