@@ -7,6 +7,7 @@
 [![Forks](https://img.shields.io/github/forks/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/network/members)
 [![Issues](https://img.shields.io/github/issues/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/MinatoAka/IndexNow?style=for-the-badge)](https://github.com/MinatoAka/IndexNow/commits)
+[![Support Me](https://img.shields.io/badge/Support%20Me-Saweria-ff69b4?style=for-the-badge)](https://saweria.co/AKaAturDompet)
 
 Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Script (GAS), lengkap dengan pencatatan log ke Google Sheets untuk keperluan monitoring, debugging, dan audit.
 
@@ -118,6 +119,12 @@ Setiap request akan dicatat ke spreadsheet, termasuk Waktu, URL, Status HTTP, da
 - API key harus sesuai dengan domain yang digunakan.
 - Hindari pengiriman URL secara berulang tanpa kontrol, karena dapat memicu rate limiting.
 - Jangan membagikan Spreadsheet ID atau API key di repository publik.
+
+## Dukungan
+
+Jika project ini bermanfaat, Anda dapat mendukung pengembangannya melalui Saweria:
+
+- [Saweria](https://saweria.co/AKaAturDompet) — dukung pengembangan dan maintenance project.
 
 ## Lisensi
 
