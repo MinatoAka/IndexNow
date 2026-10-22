@@ -138,4 +138,4 @@ Proyek ini dibuat untuk kebutuhan penggunaan pribadi dan internal. Jika Anda ing
 ## Kontribusi
 
 Kontribusi dan saran sangat diterima. Jika Anda ingin memperbaiki atau menambahkan fitur baru, silakan buka pull request atau buat issue di repository ini.
-```
+---
