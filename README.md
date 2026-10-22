@@ -138,7 +138,4 @@ Proyek ini dibuat untuk kebutuhan penggunaan pribadi dan internal. Jika Anda ing
 ## Kontribusi
 
 Kontribusi dan saran sangat diterima. Jika Anda ingin memperbaiki atau menambahkan fitur baru, silakan buka pull request atau buat issue di repository ini.
-
-## Kontak
-
-Untuk pertanyaan atau kolaborasi, silakan hubungi maintainer melalui profil GitHub atau kanal komunikasi yang tersedia.
+```
