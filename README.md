@@ -131,10 +131,6 @@ Jika project ini bermanfaat, Anda dapat mendukung pengembangannya melalui Saweri
 
 - [Saweria](https://saweria.co/AKaAturDompet) — dukung pengembangan dan maintenance project.
 
-## Lisensi
-
-Proyek ini dibuat untuk kebutuhan penggunaan pribadi dan internal. Jika Anda ingin membagikan project ini secara publik, sesuaikan lisensi sesuai kebutuhan.
-
 ## Kontribusi
 
 Kontribusi dan saran sangat diterima. Jika Anda ingin memperbaiki atau menambahkan fitur baru, silakan buka pull request atau buat issue di repository ini.
