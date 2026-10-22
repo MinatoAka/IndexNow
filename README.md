@@ -13,12 +13,12 @@ Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Scri
 
 ## ✨ Fitur Utama
 
-- ⚡ **Submit Otomatis:** Berjalan otomatis via *Time-Driven Trigger* (misal: setiap 6 jam) untuk mengecek `sitemap.xml`.
-- 🛠️ **Submit Manual:** Fungsi khusus untuk mem- *force* submit semua URL (termasuk halaman statis) kapan saja.
-- 📦 **Batch Processing:** Memotong daftar URL menjadi beberapa *batch* (maksimal 500 per *request*) agar tidak kena limit API.
-- 🛡️ **Anti-Bentrok (LockService):** Mencegah *race condition* antara trigger otomatis dan submit manual.
-- 📊 **Audit Log:** Semua respons (HTTP 200/202/4xx) dicatat rapi di Google Sheets.
-- 🧹 **Auto-Cleanup:** Menghapus log yang berumur lebih dari 7 hari secara otomatis.
+- ⚡ Submit Otomatis: berjalan otomatis lewat Time-Driven Trigger untuk mengecek sitemap secara berkala.
+- 🛠️ Submit Manual: fungsi khusus untuk force submit semua URL atau halaman statis kapan saja.
+- 📦 Batch Processing: membagi URL menjadi beberapa batch agar tidak melampaui limit API.
+- 🛡️ Anti-Bentrok (LockService): mencegah race condition saat submit otomatis dan manual terjadi bersamaan.
+- 📊 Audit Log: semua respons dicatat di Google Sheets.
+- 🧹 Auto-Cleanup: menghapus log yang berusia lebih dari 7 hari secara otomatis.
 
 ## ⚙️ Alur Kerja
 
@@ -30,13 +30,14 @@ Auto-submit URL ke API IndexNow (Bing, Yandex, dll) menggunakan Google Apps Scri
 
 ## 📂 Struktur Project
 
-Project ini dibangun dengan prinsip *Modular Architecture* agar mudah di-*maintain*:
+Project ini dibangun dengan prinsip modular architecture agar mudah di-maintain:
 
-- `Config.gs` : Pusat konfigurasi, validasi, dan inisialisasi *Script Properties*.
-- `Main.gs`   : Fungsi eksekutor utama yang dipanggil oleh *trigger* atau manual.
-- `Api.gs`    : Fungsi kurir yang menangani *request* HTTP, *retry logic*, dan *chunking* URL.
-- `Sitemap.gs`: Fungsi intelijen untuk mengambil dan mem- *parsing* `sitemap.xml` / `sitemap-pages.xml`.
-- `Utils.gs`  : Fungsi bantu (*LockService*, pembersihan log, dan manajemen cache).
+- `Config.gs` : pusat konfigurasi, validasi, dan inisialisasi Script Properties.
+- `Main.gs` : fungsi eksekutor utama yang dipanggil trigger atau manual.
+- `Api.gs` : fungsi kurir yang menangani HTTP request, retry logic, dan chunking URL.
+- `Sitemap.gs` : intelijen untuk mengambil dan parsing `sitemap.xml` / `sitemap-pages.xml`.
+- `Utils.gs` : helper umum seperti `LockService`, cache, dan pengecekan sheet.
+- `TriggerUtils.gs` : manajemen trigger otomatis, validasi, dan pembersihan trigger lama.
 
 ## Persyaratan
 
@@ -92,12 +93,16 @@ const scriptProperties = {
 
 ### Submit URL Manual
 Jika ingin menembak URL secara manual tanpa menunggu trigger, jalankan salah satu fungsi berikut di editor GAS:
-- `submitToIndexNowWithLog()` : Mengecek sitemap dan hanya mengirim URL baru (dalam 6 jam terakhir).
-- `forceSubmitAllToIndexNow()` : **Maksa** kirim semua URL artikel dari `sitemap.xml` (mengabaikan cache).
-- `submitPagesToIndexNow()` : Mengirim semua halaman statis dari `sitemap-pages.xml`.
+- `submitToIndexNowWithLog()`: mengecek sitemap dan hanya mengirim URL baru dalam 6 jam terakhir.
+- `forceSubmitAllToIndexNow()`: memaksa kirim semua URL dari `sitemap.xml` (mengabaikan cache).
+- `submitPagesToIndexNow()`: mengirim semua halaman statis dari `sitemap-pages.xml`.
 
-### Submit URL Otomatis
-Jalankan fungsi `setupTriggerFinal()` satu kali di editor GAS untuk mengaktifkan trigger otomatis setiap 6 jam.
+### Setup Trigger Otomatis
+Jalankan fungsi `setupTriggerFinal()` satu kali di editor GAS untuk membuat atau memperbarui trigger otomatis.
+
+Trigger yang diatur:
+- `submitToIndexNowWithLog`: setiap 6 jam
+- `autoDeleteIndexNowLog`: setiap Senin pukul 08.00
 
 ### Catat Log ke Spreadsheet
 Setiap request akan dicatat ke spreadsheet, termasuk Waktu, URL, Status HTTP, dan Response dari API.
