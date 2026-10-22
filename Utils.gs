@@ -49,27 +49,52 @@ function autoDeleteIndexNowLog() {
   }
 }
 
-function hasTriggerByName(functionName) {
-  return ScriptApp.getProjectTriggers().some(function (trigger) {
-    return trigger.getHandlerFunction() === functionName;
+function getManagedTriggers() {
+  const managed = ["submitToIndexNowWithLog", "autoDeleteIndexNowLog"];
+  return ScriptApp.getProjectTriggers().filter(function (trigger) {
+    return managed.indexOf(trigger.getHandlerFunction()) !== -1;
   });
 }
 
-function setupTriggerFinal() {
-  const targetFunctions = ["submitToIndexNowWithLog", "autoDeleteIndexNowLog"];
-
-  ScriptApp.getProjectTriggers().forEach(function (trigger) {
-    const currentFunction = trigger.getHandlerFunction();
-    if (targetFunctions.indexOf(currentFunction) !== -1) {
-      ScriptApp.deleteTrigger(trigger);
-    }
+function ensureTimeTrigger(functionName, createTriggerFn, isValidTriggerFn) {
+  const triggers = ScriptApp.getProjectTriggers().filter(function (trigger) {
+    return trigger.getHandlerFunction() === functionName;
   });
 
-  if (!hasTriggerByName("submitToIndexNowWithLog")) {
-    ScriptApp.newTrigger("submitToIndexNowWithLog").timeBased().everyHours(6).create();
-  }
+  const hasValidTrigger = triggers.some(function (trigger) {
+    return isValidTriggerFn(trigger);
+  });
 
-  if (!hasTriggerByName("autoDeleteIndexNowLog")) {
-    ScriptApp.newTrigger("autoDeleteIndexNowLog").timeBased().everyWeeks(1).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
-  }
+  if (hasValidTrigger) return;
+
+  triggers.forEach(function (trigger) {
+    ScriptApp.deleteTrigger(trigger);
+  });
+
+  createTriggerFn();
+}
+
+function setupTriggerFinal() {
+  ensureTimeTrigger(
+    "submitToIndexNowWithLog",
+    function () {
+      ScriptApp.newTrigger("submitToIndexNowWithLog").timeBased().everyHours(6).create();
+    },
+    function (trigger) {
+      return trigger.getEventType() === ScriptApp.EventType.CLOCK && trigger.getHandlerFunction() === "submitToIndexNowWithLog";
+    }
+  );
+
+  ensureTimeTrigger(
+    "autoDeleteIndexNowLog",
+    function () {
+      ScriptApp.newTrigger("autoDeleteIndexNowLog").timeBased().everyWeeks(1).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
+    },
+    function (trigger) {
+      return (
+        trigger.getEventType() === ScriptApp.EventType.CLOCK &&
+        trigger.getHandlerFunction() === "autoDeleteIndexNowLog"
+      );
+    }
+  );
 }
