@@ -49,11 +49,27 @@ function autoDeleteIndexNowLog() {
   }
 }
 
+function hasTriggerByName(functionName) {
+  return ScriptApp.getProjectTriggers().some(function (trigger) {
+    return trigger.getHandlerFunction() === functionName;
+  });
+}
+
 function setupTriggerFinal() {
-  ScriptApp.getProjectTriggers().forEach(function (t) {
-    ScriptApp.deleteTrigger(t);
+  const targetFunctions = ["submitToIndexNowWithLog", "autoDeleteIndexNowLog"];
+
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
+    const currentFunction = trigger.getHandlerFunction();
+    if (targetFunctions.indexOf(currentFunction) !== -1) {
+      ScriptApp.deleteTrigger(trigger);
+    }
   });
 
-  ScriptApp.newTrigger("submitToIndexNowWithLog").timeBased().everyHours(6).create();
-  ScriptApp.newTrigger("autoDeleteIndexNowLog").timeBased().everyWeeks(1).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
+  if (!hasTriggerByName("submitToIndexNowWithLog")) {
+    ScriptApp.newTrigger("submitToIndexNowWithLog").timeBased().everyHours(6).create();
+  }
+
+  if (!hasTriggerByName("autoDeleteIndexNowLog")) {
+    ScriptApp.newTrigger("autoDeleteIndexNowLog").timeBased().everyWeeks(1).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(8).create();
+  }
 }
