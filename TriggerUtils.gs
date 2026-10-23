@@ -17,12 +17,10 @@ function deleteTriggersByFunctionName(functionName) {
 function ensureClockTrigger(functionName, buildTrigger, isValidTrigger) {
   const triggers = getTriggersByFunctionName(functionName);
 
-  // Jika sudah ada trigger yang valid, biarkan saja (jangan buat baru)
   if (triggers.some(isValidTrigger)) {
     return;
   }
 
-  // Jika tidak ada yang valid, hapus semua trigger lama dan buat baru
   deleteTriggersByFunctionName(functionName);
   buildTrigger();
 }
@@ -38,7 +36,6 @@ function setupTriggerFinal() {
           .create();
       },
       isValidTrigger: function (trigger) {
-        // Cukup cek tipe event karena nama fungsi sudah difilter sebelumnya
         return trigger.getEventType() === ScriptApp.EventType.CLOCK;
       }
     },
