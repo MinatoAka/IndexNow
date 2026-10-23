@@ -18,6 +18,11 @@ const ENDPOINTS = (() => {
   }
 })();
 
+function getWibTimestamp(date) {
+  var d = date || new Date();
+  return Utilities.formatDate(d, "GMT+7", "yyyy-MM-dd HH:mm:ss");
+}
+
 function validateConfig() {
   const missing = [];
 
