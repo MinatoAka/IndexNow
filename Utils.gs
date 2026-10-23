@@ -34,17 +34,42 @@ function getCacheSet() {
 }
 
 function autoDeleteIndexNowLog() {
-  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
-  if (!sheet) return;
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet || sheet.getLastRow() <= 1) return;
 
   const data = sheet.getDataRange().getValues();
+  if (!data.length) return;
+
+  const header = data[0];
+  const keepRows = [header];
   const sekarang = new Date();
 
-  for (let i = data.length - 1; i >= 1; i--) {
-    const tgl = new Date(data[i][0]);
-    if (isNaN(tgl.getTime())) continue;
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const rawDate = row[0];
 
-    const selisih = (sekarang - tgl) / (1000 * 60 * 60 * 24);
-    if (selisih > 7) sheet.deleteRow(i + 1);
+    if (!rawDate) {
+      keepRows.push(row);
+      continue;
+    }
+
+    const parsedDate = new Date(rawDate);
+    if (isNaN(parsedDate.getTime())) {
+      keepRows.push(row);
+      continue;
+    }
+
+    const selisihHari = (sekarang - parsedDate) / (1000 * 60 * 60 * 24);
+    if (selisihHari <= 7) {
+      keepRows.push(row);
+    }
+  }
+
+  if (keepRows.length !== sheet.getLastRow()) {
+    sheet.clearContents();
+    if (keepRows.length > 0) {
+      sheet.getRange(1, 1, keepRows.length, keepRows[0].length).setValues(keepRows);
+    }
   }
 }
