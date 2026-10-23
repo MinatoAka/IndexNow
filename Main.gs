@@ -10,9 +10,10 @@ function submitToIndexNowWithLog() {
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
       const sitemapResult = getSitemapUrls(sitemapUrl, true);
+      const waktu = getWibTimestamp();
 
       if (sitemapResult.error) {
-        sheet.appendRow([new Date(), "ERROR", 0, "-", sitemapResult.error]);
+        sheet.appendRow([waktu, "ERROR", 0, "-", sitemapResult.error]);
         return;
       }
 
@@ -21,13 +22,13 @@ function submitToIndexNowWithLog() {
       });
 
       if (toSubmit.length === 0) {
-        sheet.appendRow([new Date(), "SKIP", 0, "Tidak ada URL baru dalam 6 jam", "-"]);
+        sheet.appendRow([waktu, "SKIP", 0, "Tidak ada URL baru dalam 6 jam", "-"]);
         return;
       }
 
       const result = kirimKeIndexNow(toSubmit);
       sheet.appendRow([
-        new Date(),
+        waktu,
         result.success ? "SUKSES" : "GAGAL",
         toSubmit.length,
         toSubmit.join("\n"),
@@ -43,7 +44,7 @@ function submitToIndexNowWithLog() {
     } catch (e) {
       try {
         const sheet = ensureSheet();
-        sheet.appendRow([new Date(), "ERROR", 0, "-", e.toString()]);
+        sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
         Logger.log("submitToIndexNowWithLog error: " + e.toString());
       }
@@ -62,9 +63,10 @@ function forceSubmitAllToIndexNow() {
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
       const sitemapResult = getSitemapUrls(sitemapUrl, false);
+      const waktu = getWibTimestamp();
 
       if (sitemapResult.error) {
-        sheet.appendRow([new Date(), "ERROR", 0, "-", sitemapResult.error]);
+        sheet.appendRow([waktu, "ERROR", 0, "-", sitemapResult.error]);
         return;
       }
 
@@ -73,7 +75,7 @@ function forceSubmitAllToIndexNow() {
 
       const result = kirimKeIndexNow(toSubmit);
       sheet.appendRow([
-        new Date(),
+        waktu,
         result.success ? "SUKSES (FORCE)" : "GAGAL (FORCE)",
         toSubmit.length,
         toSubmit.join("\n"),
@@ -87,7 +89,7 @@ function forceSubmitAllToIndexNow() {
     } catch (e) {
       try {
         const sheet = ensureSheet();
-        sheet.appendRow([new Date(), "ERROR", 0, "-", e.toString()]);
+        sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
         Logger.log("forceSubmitAllToIndexNow error: " + e.toString());
       }
@@ -101,14 +103,11 @@ function submitPagesToIndexNow() {
       validateConfig();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap-pages.xml";
-      
-      // Menggunakan fungsi dari Sitemap.gs (DRY Principle)
-      // Parameter kedua 'false' artinya ambil semua URL, tanpa filter 6 jam
+      const waktu = getWibTimestamp();
       const sitemapResult = getSitemapUrls(sitemapUrl, false);
 
-      // Validasi jika error atau sitemap kosong
       if (sitemapResult.error || sitemapResult.urls.length === 0) {
-        sheet.appendRow([new Date(), "SKIP", 0, "-", "sitemap-pages.xml kosong atau gagal dimuat"]);
+        sheet.appendRow([waktu, "SKIP", 0, "-", "sitemap-pages.xml kosong atau gagal dimuat"]);
         return;
       }
 
@@ -116,7 +115,7 @@ function submitPagesToIndexNow() {
       const result = kirimKeIndexNow(toSubmit);
       
       sheet.appendRow([
-        new Date(),
+        waktu,
         result.success ? "SUKSES (PAGES)" : "GAGAL (PAGES)",
         toSubmit.length,
         toSubmit.join("\n"),
@@ -126,7 +125,7 @@ function submitPagesToIndexNow() {
     } catch (e) {
       try {
         const sheet = ensureSheet();
-        sheet.appendRow([new Date(), "ERROR", 0, "-", e.toString()]);
+        sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
         Logger.log("submitPagesToIndexNow error: " + e.toString());
       }
