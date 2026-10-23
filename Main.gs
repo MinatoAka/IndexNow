@@ -4,13 +4,13 @@
 
 function submitToIndexNowWithLog() {
   return withSubmitLock(function () {
+    const waktu = getWibTimestamp();
     try {
       validateConfig();
       const cache = getCacheSet();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
       const sitemapResult = getSitemapUrls(sitemapUrl, true);
-      const waktu = getWibTimestamp();
 
       if (sitemapResult.error) {
         sheet.appendRow([waktu, "ERROR", 0, "-", sitemapResult.error]);
@@ -58,12 +58,12 @@ function submitToIndexNowWithLog() {
 
 function forceSubmitAllToIndexNow() {
   return withSubmitLock(function () {
+    const waktu = getWibTimestamp();
     try {
       validateConfig();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap.xml";
       const sitemapResult = getSitemapUrls(sitemapUrl, false);
-      const waktu = getWibTimestamp();
 
       if (sitemapResult.error) {
         sheet.appendRow([waktu, "ERROR", 0, "-", sitemapResult.error]);
@@ -99,11 +99,11 @@ function forceSubmitAllToIndexNow() {
 
 function submitPagesToIndexNow() {
   return withSubmitLock(function () {
+    const waktu = getWibTimestamp();
     try {
       validateConfig();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap-pages.xml";
-      const waktu = getWibTimestamp();
       const sitemapResult = getSitemapUrls(sitemapUrl, false);
 
       if (sitemapResult.error || sitemapResult.urls.length === 0) {
