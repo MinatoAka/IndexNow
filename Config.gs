@@ -19,7 +19,7 @@ const ENDPOINTS = (() => {
 })();
 
 function getWibTimestamp(date) {
-  var d = date || new Date();
+  const d = date || new Date();
   return Utilities.formatDate(d, "Asia/Jakarta", "yyyy-MM-dd HH:mm:ss");
 }
 
