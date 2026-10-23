@@ -101,38 +101,20 @@ function submitPagesToIndexNow() {
       validateConfig();
       const sheet = ensureSheet();
       const sitemapUrl = SITE_URL + "/sitemap-pages.xml";
-      const response = UrlFetchApp.fetch(sitemapUrl, { muteHttpExceptions: true });
-      const sitemap = response.getContentText();
+      
+      // Menggunakan fungsi dari Sitemap.gs (DRY Principle)
+      // Parameter kedua 'false' artinya ambil semua URL, tanpa filter 6 jam
+      const sitemapResult = getSitemapUrls(sitemapUrl, false);
 
-      if (!sitemap || response.getResponseCode() >= 400 || sitemap.indexOf("<html") > -1) {
-        sheet.appendRow([new Date(), "SKIP", 0, "-", "sitemap-pages.xml tidak ditemukan atau gagal dimuat"]);
+      // Validasi jika error atau sitemap kosong
+      if (sitemapResult.error || sitemapResult.urls.length === 0) {
+        sheet.appendRow([new Date(), "SKIP", 0, "-", "sitemap-pages.xml kosong atau gagal dimuat"]);
         return;
       }
 
-      const xml = XmlService.parse(sitemap);
-      const root = xml.getRootElement();
-      const rootName = (root.getName() || '').toLowerCase();
-      const defaultNamespace = root.getNamespace();
-      const sitemapNs = defaultNamespace || XmlService.getNamespace('http://www.sitemaps.org/schemas/sitemap/0.9');
-      const urlNodes = rootName === 'sitemapindex'
-        ? root.getChildren('sitemap', sitemapNs)
-        : root.getChildren('url', sitemapNs);
-
-      const toSubmit = [];
-
-      for (let i = 0; i < urlNodes.length; i++) {
-        const currentNode = urlNodes[i];
-        const locNode = currentNode.getChild('loc', sitemapNs);
-        const loc = locNode ? String(locNode.getText()).trim() : '';
-
-        if (loc) {
-          toSubmit.push(loc);
-        }
-      }
-
-      if (toSubmit.length === 0) return;
-
+      const toSubmit = sitemapResult.urls;
       const result = kirimKeIndexNow(toSubmit);
+      
       sheet.appendRow([
         new Date(),
         result.success ? "SUKSES (PAGES)" : "GAGAL (PAGES)",
@@ -140,6 +122,7 @@ function submitPagesToIndexNow() {
         toSubmit.join("\n"),
         result.success ? "HTTP " + result.code : result.error
       ]);
+      
     } catch (e) {
       try {
         const sheet = ensureSheet();
