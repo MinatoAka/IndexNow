@@ -20,7 +20,7 @@ const ENDPOINTS = (() => {
 
 function getWibTimestamp(date) {
   var d = date || new Date();
-  return Utilities.formatDate(d, "GMT+7", "yyyy-MM-dd HH:mm:ss");
+  return Utilities.formatDate(d, "Asia/Jakarta", "yyyy-MM-dd HH:mm:ss");
 }
 
 function validateConfig() {
