@@ -46,7 +46,7 @@ function submitToIndexNowWithLog() {
         const sheet = ensureSheet();
         sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
-        Logger.log("submitToIndexNowWithLog error: " + e.toString());
+        Logger.log("submitToIndexNowWithLog error: " + sheetErr.toString());
       }
     }
   });
@@ -91,7 +91,7 @@ function forceSubmitAllToIndexNow() {
         const sheet = ensureSheet();
         sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
-        Logger.log("forceSubmitAllToIndexNow error: " + e.toString());
+        Logger.log("forceSubmitAllToIndexNow error: " + sheetErr.toString());
       }
     }
   });
@@ -127,7 +127,7 @@ function submitPagesToIndexNow() {
         const sheet = ensureSheet();
         sheet.appendRow([waktu, "ERROR", 0, "-", e.toString()]);
       } catch (sheetErr) {
-        Logger.log("submitPagesToIndexNow error: " + e.toString());
+        Logger.log("submitPagesToIndexNow error: " + sheetErr.toString());
       }
     }
   });
