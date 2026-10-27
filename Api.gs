@@ -41,7 +41,10 @@ function submitSingleBatch(urlList) {
       try {
         const res = UrlFetchApp.fetch(ep, {
           method: "post",
-          contentType: "application/json; charset=utf-8",
+          headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "User-Agent": "AturDompetBot/1.0 (+https://aturdompet.my.id)"
+          },
           payload: payload,
           muteHttpExceptions: true,
           followRedirects: true,
