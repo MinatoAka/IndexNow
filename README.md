@@ -68,7 +68,7 @@ Tambahkan properti berikut:
 
 - `IndexNow_KEY`: `YOUR_INDEXNOW_KEY`
 - `SPREADSHEETS_ID`: `YOUR_SPREADSHEET_ID`
-- `TARGET_POINTS`: `["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow"]`
+- `TARGET_POINTS`: `["https://api.indexnow.org/indexnow", "https://yandex.com/indexnow", "https://search.seznam.cz/indexnow", "https://searchadvisor.naver.com/indexnow"]`
 - `idx_cache_final`: `[]`
 
 Catatan penting:
